@@ -1,0 +1,3 @@
+rootProject.name = 'Navigation1'
+include 'core_navigation'
+
