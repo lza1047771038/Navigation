@@ -49,20 +49,24 @@ class NavController : INavController {
 
     override fun <T : Any> navigate(destination: String, options: NavOptions?, arguments: ArgumentsInitializer<T>): Boolean {
         val navDestination = getDestination(destination) ?: return false
-        return navigateInternal(navDestination, options ?: navDestination.options, arguments as ArgumentsInitializer<Any>)
+        return navigateInternal(navDestination, false, options ?: navDestination.options, arguments as ArgumentsInitializer<Any>)
     }
 
     override fun replaceWith(destination: String, options: NavOptions?): Boolean {
         val navDestination = getDestination(destination) ?: return false
-        return navigateInternal(navDestination, options ?: navDestination.options) {}
+        return navigateInternal(navDestination, true, options ?: navDestination.options) {}
     }
 
     override fun navigateUp(options: NavOptions?): Boolean {
         return popBackStack(options)
     }
 
-    private fun navigateInternal(destination: Navigator.Destination, options: NavOptions, argumentInit: ArgumentsInitializer<Any>): Boolean {
+    private fun navigateInternal(destination: Navigator.Destination, replace: Boolean = false, options: NavOptions, argumentInit: ArgumentsInitializer<Any>): Boolean {
         val navigator = getNavigator(destination.type) as? Navigator<Navigator.Destination, Any> ?: return false
+
+        if (replace) {
+            popBackStackInner(options, true)
+        }
 
         val arguments = navigator.provideArguments()
         arguments.argumentInit()
@@ -88,6 +92,13 @@ class NavController : INavController {
     }
 
     override fun popBackStack(options: BaseOptions?): Boolean {
+        return popBackStackInner(options, false)
+    }
+
+    private fun popBackStackInner(options: BaseOptions?, forcePopup: Boolean = false): Boolean {
+        if (forcePopup) {
+            return popBackStackInternal()
+        }
         return if (options == null || options.popUpTo.isEmpty()) {
             if (backStackCount > 1) {
                 popBackStackInternal()

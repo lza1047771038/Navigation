@@ -25,7 +25,7 @@ fun main() {
     controller.navigate(PATH_MAIN)
     controller.printBackStack()
 
-    controller.navigate(PATH_MINE)
+    controller.replaceWith(PATH_MINE)
     controller.printBackStack()
 
     controller.navigate(PATH_MINE)
